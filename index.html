@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F2F0E6">
+<meta name="description" content="A calm, minimal five-dice roller for Yahtzee on the go.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>RK Dice</title>
+<style>
+:root{color-scheme:light;--bg:#F2F0E6;--panel:#FAF9F3;--ink:#303B32;--accent:#71856B;--muted:#828679;--die:#FFFDF6;--line:#D8D9C9;--held:#DDE7D4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100svh;display:flex;justify-content:center}
+main{width:min(100%,520px);padding:calc(20px + env(safe-area-inset-top)) 18px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:20px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:11px}
+.mark{width:44px;height:44px;background:var(--accent);color:#fff;border-radius:14px;display:grid;place-items:center;font-size:25px;box-shadow:0 4px 12px #303b3210}
+h1{font-size:19px;letter-spacing:.12em;margin:0;font-weight:800}
+.eyebrow{font-size:10px;letter-spacing:.14em;color:var(--muted);margin-top:4px}
+.icon-btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:50%;width:42px;height:42px;font-size:19px;cursor:pointer}
+.rule{height:1px;background:var(--line)}
+.intro{text-align:center;padding:14px 0 2px}
+.status{font-size:11px;letter-spacing:.16em;font-weight:750;color:var(--muted)}
+h2{font-size:clamp(25px,7vw,34px);letter-spacing:-.04em;margin:10px 0 7px;line-height:1.08}
+.sub{font-size:13px;color:var(--muted);margin:0;line-height:1.5}
+.dice{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.die{aspect-ratio:.78;border-radius:17px;border:1px solid var(--line);background:var(--die);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer;padding:4px;min-width:0;transition:transform .12s,border-color .12s,background .12s;box-shadow:0 4px 12px #303b3207}
+.die:active{transform:scale(.95)}
+.die.held{background:var(--held);border:2px solid var(--accent)}
+.face{font-size:clamp(29px,8vw,43px);line-height:1}
+.die-label{font-size:9px;letter-spacing:.08em;font-weight:750;color:var(--muted)}
+.die.held .die-label{color:var(--accent)}
+.hint{text-align:center;font-size:11px;color:var(--muted);margin-top:-9px}
+.actions{display:flex;flex-direction:column;gap:10px}
+button{font:inherit}
+.primary{width:100%;border:0;border-radius:15px;background:var(--accent);color:white;min-height:56px;font-weight:750;font-size:16px;cursor:pointer;box-shadow:0 5px 14px #303b3215}
+.primary:active{transform:translateY(1px)}
+.secondary-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.secondary{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:13px;min-height:44px;font-size:13px;font-weight:650;cursor:pointer}
+button:disabled{opacity:.4;cursor:default}
+.section-title{font-size:14px;font-weight:750;margin-bottom:10px}
+.palettes{display:flex;gap:8px;flex-wrap:wrap}
+.swatch{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:30px;padding:9px 12px;display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer}
+.swatch.active{border:2px solid var(--accent);padding:8px 11px}
+.dot{width:12px;height:12px;border-radius:50%}
+.footer{text-align:center;color:var(--muted);font-size:11px;letter-spacing:.03em;padding-top:1px}
+dialog{border:1px solid var(--line);border-radius:18px;background:var(--panel);color:var(--ink);width:calc(100% - 36px);max-width:420px;padding:22px;box-shadow:0 18px 60px #0002}
+dialog::backdrop{background:#20272277}
+dialog h3{margin:0 0 10px}
+dialog p{font-size:14px;line-height:1.55;color:var(--muted)}
+.close{border:0;border-radius:12px;background:var(--accent);color:#fff;padding:12px 18px;font-weight:700;cursor:pointer}
+@media(min-width:420px){main{padding-left:24px;padding-right:24px}.dice{gap:12px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="brand"><div class="mark" aria-hidden="true">⚄</div><div><h1>RK / DICE</h1><div class="eyebrow">FIVE DICE · POCKET EDITION</div></div></div>
+  <button class="icon-btn" id="help" aria-label="How to play">?</button>
+</header>
+<div class="rule"></div>
+<section class="intro" aria-live="polite">
+  <div class="status" id="status">READY WHEN YOU ARE</div>
+  <h2 id="headline">A little luck.</h2>
+  <p class="sub" id="subline">Five dice, endless possibilities.</p>
+</section>
+<section class="dice" id="dice" aria-label="Five dice"></section>
+<div class="hint" id="hint">Roll to begin. Tap dice to hold them between rolls.</div>
+<section class="actions">
+  <button class="primary" id="roll">⚄ &nbsp; Roll all five</button>
+  <div class="secondary-row">
+    <button class="secondary" id="holdAll" disabled>Hold all</button>
+    <button class="secondary" id="releaseAll" disabled>Release all</button>
+  </div>
+</section>
+<div class="rule"></div>
+<section>
+  <div class="section-title">Make it yours</div>
+  <p class="sub" style="margin-bottom:12px">A calm little palette for wherever you are.</p>
+  <div class="palettes" id="palettes">
+    <button class="swatch active" data-palette="Moss"><span class="dot" style="background:#71856B"></span>Moss</button>
+    <button class="swatch" data-palette="Moon"><span class="dot" style="background:#7389B2"></span>Moon</button>
+    <button class="swatch" data-palette="Clay"><span class="dot" style="background:#B47C60"></span>Clay</button>
+    <button class="swatch" data-palette="Night"><span class="dot" style="background:#B4C69A"></span>Night</button>
+  </div>
+</section>
+<div class="footer">RK · Made for the little moments between destinations ✦</div>
+</main>
+<dialog id="guide">
+  <h3>How to play 🎲</h3>
+  <p>Roll all five dice. Tap a die to hold it. Roll again to reroll only dice that are not held. You can change which dice are held between rolls.</p>
+  <p>Each Yahtzee turn allows up to three rolls, including the first. When you have used all three, start a new turn. This app rolls dice only, so keep your scorecard separately.</p>
+  <button class="close" id="closeGuide">Got it</button>
+</dialog>
+<script>
+const faces=["","⚀","⚁","⚂","⚃","⚄","⚅"];
+const palettes={
+ Moss:{bg:"#F2F0E6",panel:"#FAF9F3",ink:"#303B32",accent:"#71856B",muted:"#828679",die:"#FFFDF6",line:"#D8D9C9",held:"#DDE7D4",theme:"#F2F0E6"},
+ Moon:{bg:"#E9EDF4",panel:"#F7F8FC",ink:"#30394D",accent:"#7389B2",muted:"#7F8798",die:"#FFFFFF",line:"#D2D9E5",held:"#D8E2F4",theme:"#E9EDF4"},
+ Clay:{bg:"#F4EAE1",panel:"#FBF6F0",ink:"#4A3830",accent:"#B47C60",muted:"#8D786C",die:"#FFFCF7",line:"#E3D0C2",held:"#F0D9CA",theme:"#F4EAE1"},
+ Night:{bg:"#202722",panel:"#2A332D",ink:"#F1F0E5",accent:"#B4C69A",muted:"#A4AD9E",die:"#364039",line:"#485449",held:"#455C48",theme:"#202722"}
+};
+let dice=[1,2,3,4,5], held=[false,false,false,false,false], rolls=0, started=false;
+let palette=localStorage.getItem("rk-dice-palette")||"Moss";
+const $=id=>document.getElementById(id);
+function applyPalette(name){
+ palette=name;const p=palettes[name];const root=document.documentElement;
+ for(const k of ["bg","panel","ink","accent","muted","die","line","held"])root.style.setProperty("--"+k,p[k]);
+ document.querySelector('meta[name="theme-color"]').content=p.theme;
+ document.querySelectorAll(".swatch").forEach(b=>{b.classList.toggle("active",b.dataset.palette===name);b.setAttribute("aria-pressed",String(b.dataset.palette===name))});
+ try{localStorage.setItem("rk-dice-palette",name)}catch(e){}
+}
+function render(){
+ $("dice").innerHTML="";
+ dice.forEach((v,i)=>{
+  const b=document.createElement("button");b.className="die"+(held[i]?" held":"");
+  b.setAttribute("aria-label",`Die ${i+1}: ${v}${held[i]?", held":""}`);
+  b.setAttribute("aria-pressed",String(held[i]));b.disabled=!started;
+  b.innerHTML=`<span class="face">${faces[v]}</span><span class="die-label">${held[i]?"HELD":String(i+1).padStart(2,"0")}</span>`;
+  b.addEventListener("click",()=>{held[i]=!held[i];render()});$("dice").appendChild(b);
+ });
+ $("status").textContent=!started?"READY WHEN YOU ARE":`ROLL ${rolls} OF 3`;
+ $("headline").textContent=!started?"A little luck.":rolls===1?"Keep your favourites.":rolls===2?"Shape your hand.":"Make it count.";
+ $("subline").textContent=!started?"Five dice, endless possibilities.":`${held.filter(Boolean).length} held · ${5-held.filter(Boolean).length} to reroll`;
+ $("hint").textContent=!started?"Roll to begin. Tap dice to hold them between rolls.":"Tap dice to hold or release them.";
+ $("roll").textContent=!started?"⚄   Roll all five":rolls>=3?"↻   New turn":`⚄   Reroll ${5-held.filter(Boolean).length} dice`;
+ $("holdAll").disabled=!started||held.every(Boolean);$("releaseAll").disabled=!started||held.every(v=>!v);
+}
+$("roll").addEventListener("click",()=>{
+ if(started&&rolls>=3){rolls=0;started=false;held=[false,false,false,false,false];}
+ if(!started){dice=dice.map(()=>1+Math.floor(Math.random()*6));started=true;rolls=1;held=[false,false,false,false,false];}
+ else{dice=dice.map((v,i)=>held[i]?v:1+Math.floor(Math.random()*6));rolls++;}
+ render();
+});
+$("holdAll").addEventListener("click",()=>{held=[true,true,true,true,true];render()});
+$("releaseAll").addEventListener("click",()=>{held=[false,false,false,false,false];render()});
+document.querySelectorAll(".swatch").forEach(b=>b.addEventListener("click",()=>applyPalette(b.dataset.palette)));
+$("help").addEventListener("click",()=>$("guide").showModal());
+$("closeGuide").addEventListener("click",()=>$("guide").close());
+applyPalette(palette in palettes?palette:"Moss");render();
+if("serviceWorker" in navigator && location.protocol!=="file:"){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
+</script>
+</body>
+</html>
