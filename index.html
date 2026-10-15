@@ -76,16 +76,7 @@ dialog p{font-size:14px;line-height:1.55;color:var(--muted)}
   </div>
 </section>
 <div class="rule"></div>
-<section>
-  <div class="section-title">Make it yours</div>
-  <p class="sub" style="margin-bottom:12px">A calm little palette for wherever you are.</p>
-  <div class="palettes" id="palettes">
-    <button class="swatch active" data-palette="Moss"><span class="dot" style="background:#71856B"></span>Moss</button>
-    <button class="swatch" data-palette="Moon"><span class="dot" style="background:#7389B2"></span>Moon</button>
-    <button class="swatch" data-palette="Clay"><span class="dot" style="background:#B47C60"></span>Clay</button>
-    <button class="swatch" data-palette="Night"><span class="dot" style="background:#B4C69A"></span>Night</button>
-  </div>
-</section>
+
 <div class="footer">RK · Made for the little moments between destinations ✦</div>
 </main>
 <dialog id="guide">
@@ -96,22 +87,8 @@ dialog p{font-size:14px;line-height:1.55;color:var(--muted)}
 </dialog>
 <script>
 const faces=["","⚀","⚁","⚂","⚃","⚄","⚅"];
-const palettes={
- Moss:{bg:"#F2F0E6",panel:"#FAF9F3",ink:"#303B32",accent:"#71856B",muted:"#828679",die:"#FFFDF6",line:"#D8D9C9",held:"#DDE7D4",theme:"#F2F0E6"},
- Moon:{bg:"#E9EDF4",panel:"#F7F8FC",ink:"#30394D",accent:"#7389B2",muted:"#7F8798",die:"#FFFFFF",line:"#D2D9E5",held:"#D8E2F4",theme:"#E9EDF4"},
- Clay:{bg:"#F4EAE1",panel:"#FBF6F0",ink:"#4A3830",accent:"#B47C60",muted:"#8D786C",die:"#FFFCF7",line:"#E3D0C2",held:"#F0D9CA",theme:"#F4EAE1"},
- Night:{bg:"#202722",panel:"#2A332D",ink:"#F1F0E5",accent:"#B4C69A",muted:"#A4AD9E",die:"#364039",line:"#485449",held:"#455C48",theme:"#202722"}
-};
 let dice=[1,2,3,4,5], held=[false,false,false,false,false], rolls=0, started=false;
-let palette=localStorage.getItem("rk-dice-palette")||"Moss";
 const $=id=>document.getElementById(id);
-function applyPalette(name){
- palette=name;const p=palettes[name];const root=document.documentElement;
- for(const k of ["bg","panel","ink","accent","muted","die","line","held"])root.style.setProperty("--"+k,p[k]);
- document.querySelector('meta[name="theme-color"]').content=p.theme;
- document.querySelectorAll(".swatch").forEach(b=>{b.classList.toggle("active",b.dataset.palette===name);b.setAttribute("aria-pressed",String(b.dataset.palette===name))});
- try{localStorage.setItem("rk-dice-palette",name)}catch(e){}
-}
 function render(){
  $("dice").innerHTML="";
  dice.forEach((v,i)=>{
@@ -136,10 +113,9 @@ $("roll").addEventListener("click",()=>{
 });
 $("holdAll").addEventListener("click",()=>{held=[true,true,true,true,true];render()});
 $("releaseAll").addEventListener("click",()=>{held=[false,false,false,false,false];render()});
-document.querySelectorAll(".swatch").forEach(b=>b.addEventListener("click",()=>applyPalette(b.dataset.palette)));
 $("help").addEventListener("click",()=>$("guide").showModal());
 $("closeGuide").addEventListener("click",()=>$("guide").close());
-applyPalette(palette in palettes?palette:"Moss");render();
+render();
 if("serviceWorker" in navigator && location.protocol!=="file:"){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
 </script>
   <script src="themes.js"></script>
