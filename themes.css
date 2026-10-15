@@ -1,0 +1,2 @@
+/* RK Dice Theme Studio extension point. Core theme styles are currently injected by themes.js. */
+:root { --rk-theme-studio-version: 1; }
