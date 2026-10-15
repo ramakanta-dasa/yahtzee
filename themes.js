@@ -49,6 +49,7 @@ const css = '#rk-theme-studio{border:1px solid var(--line);border-radius:18px;pa
 'body[data-rk-die-style="sketch"] .die{border:2px dashed var(--accent);border-radius:10px;box-shadow:none}'+
 'body[data-rk-die-style="botanical"] .die{border-radius:22px 12px 22px 12px;border:1px solid var(--accent);box-shadow:inset 0 0 0 3px var(--held)}'+
 'body[data-rk-die-style="classic"] .die{border-radius:17px}'+
+'.die{width:calc(100% * var(--rk-die-size,1));justify-self:center}'+
 '.die .face{transform:scale(var(--rk-face-scale,1));transition:transform .12s}'+
 '@media(min-width:420px){#rk-theme-studio .rk-theme-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}'+
 '@media(prefers-reduced-motion:reduce){.die,.die .face{transition:none!important}}';
@@ -109,7 +110,7 @@ function buildPanel(){
   b.addEventListener("click",()=>applyTheme(name));grid.appendChild(b);
  });
  const size=panel.querySelector("#rk-die-size"),sizeValue=panel.querySelector("#rk-die-size-value");
- function setSize(v,persist=true){const n=Math.max(80,Math.min(125,Number(v)||100));document.documentElement.style.setProperty("--rk-face-scale",n/100);size.value=n;sizeValue.textContent=n+"%";if(persist)try{localStorage.setItem("rk-dice-size",String(n))}catch(e){}}
+ function setSize(v,persist=true){const n=Math.max(80,Math.min(125,Number(v)||100));document.documentElement.style.setProperty("--rk-face-scale",n/100);document.documentElement.style.setProperty("--rk-die-size",n/100);size.value=n;sizeValue.textContent=n+"%";if(persist)try{localStorage.setItem("rk-dice-size",String(n))}catch(e){}}
  size.addEventListener("input",()=>setSize(size.value));
  const finish=panel.querySelector("#rk-die-style");
  finish.addEventListener("change",()=>{document.body.dataset.rkDieStyle=finish.value;try{localStorage.setItem("rk-dice-finish",finish.value)}catch(e){}});
