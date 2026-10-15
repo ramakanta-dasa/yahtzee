@@ -1,5 +1,5 @@
-const CACHE = "rk-dice-v2";
-const ASSETS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./themes.js", "./themes.css"];
+const CACHE = "rk-dice-v3";
+const ASSETS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./themes.js", "./themes.css", "./assets/dice-finish-classic.svg", "./assets/dice-finish-soft.svg", "./assets/dice-finish-glass.svg", "./assets/dice-finish-sketch.svg", "./assets/dice-finish-botanical.svg"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
