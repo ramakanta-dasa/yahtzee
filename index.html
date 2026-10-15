@@ -142,5 +142,6 @@ $("closeGuide").addEventListener("click",()=>$("guide").close());
 applyPalette(palette in palettes?palette:"Moss");render();
 if("serviceWorker" in navigator && location.protocol!=="file:"){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
 </script>
+  <script src="themes.js"></script>
 </body>
 </html>
