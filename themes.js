@@ -44,12 +44,14 @@ const css = '#rk-theme-studio{border:1px solid var(--line);border-radius:18px;pa
 '#rk-theme-studio input[type=range]{width:100%;accent-color:var(--accent)}'+
 '#rk-theme-studio .rk-size-value{font-size:12px;color:var(--muted);min-width:38px;text-align:right;font-variant-numeric:tabular-nums}'+
 '#rk-theme-studio .rk-description{font-size:12px;color:var(--muted);line-height:1.45;margin:0}'+
-'body[data-rk-die-style="soft"] .die{border-radius:25px;box-shadow:0 7px 14px #0001}'+
-'body[data-rk-die-style="glass"] .die{background:linear-gradient(145deg,var(--panel),var(--die));box-shadow:inset 0 1px 0 #ffffff80,0 7px 16px #0001;border-radius:19px}'+
-'body[data-rk-die-style="sketch"] .die{border:2px dashed var(--accent);border-radius:10px;box-shadow:none}'+
-'body[data-rk-die-style="botanical"] .die{border-radius:22px 12px 22px 12px;border:1px solid var(--accent);box-shadow:inset 0 0 0 3px var(--held)}'+
-'body[data-rk-die-style="classic"] .die{border-radius:17px}'+
-'.die{width:calc(100% * var(--rk-die-size,1));justify-self:center}'+
+'body[data-rk-die-style="soft"] .die{border-radius:28px;background:linear-gradient(145deg,var(--die),var(--held));border:1px solid var(--accent);box-shadow:0 8px 18px #0002}'+
+'body[data-rk-die-style="glass"] .die{background:linear-gradient(135deg,#ffffffaa,var(--die) 45%,var(--held));border:1px solid #ffffffb8;box-shadow:inset 0 2px 4px #ffffffa8,inset 0 -3px 6px #0002,0 9px 18px #0002;border-radius:22px}'+
+'body[data-rk-die-style="sketch"] .die{background:transparent;border:2px dashed var(--accent);border-radius:9px;box-shadow:none;outline:1px solid var(--line);outline-offset:2px}'+
+'body[data-rk-die-style="sketch"] .die:nth-child(even){transform:rotate(1deg)}'+
+'body[data-rk-die-style="sketch"] .die:nth-child(odd){transform:rotate(-1deg)}'+
+'body[data-rk-die-style="botanical"] .die{border-radius:50% 18% 50% 18%;border:2px solid var(--accent);box-shadow:inset 0 0 0 4px var(--held),0 5px 12px #0001;background:linear-gradient(145deg,var(--die),var(--held))}'+
+'body[data-rk-die-style="classic"] .die{border-radius:17px;border:1px solid var(--line);box-shadow:0 4px 12px #303b3207;background:var(--die)}'+
+'.die{width:var(--rk-die-width,100%);justify-self:center}'+
 '.die .face{transform:scale(var(--rk-face-scale,1));transition:transform .12s}'+
 '@media(min-width:420px){#rk-theme-studio .rk-theme-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}'+
 '@media(prefers-reduced-motion:reduce){.die,.die .face{transition:none!important}}';
@@ -60,7 +62,6 @@ function applyTheme(name,persist=true){
  document.body.style.fontFamily=t.font;
  const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=t.bg;
  document.querySelectorAll("#rk-theme-studio .rk-theme-choice").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.rkTheme===name)));
- document.querySelectorAll(".swatch").forEach(b=>b.classList.remove("active"));
  if(persist)try{localStorage.setItem("rk-dice-theme",name)}catch(e){}
  document.body.dataset.rkTheme=name;
  const mood=document.querySelector("#rk-theme-studio .rk-description");if(mood)mood.textContent=t.mood;
@@ -98,11 +99,11 @@ function updateRollDescription(){
  else {const match=status.textContent.match(/\d+/),idx=Math.min(2,Math.max(0,Number(match?match[0]:1)-1));subline.textContent=heldCount+" held · "+(5-heldCount)+" available to reroll. "+voice[idx];}
 }
 function buildPanel(){
- const paletteSection=document.querySelector("#palettes")&&document.querySelector("#palettes").closest("section");
- if(!paletteSection||document.getElementById("rk-theme-studio"))return;
+ const footer=document.querySelector(".footer");
+ if(!footer||document.getElementById("rk-theme-studio"))return;
  const panel=document.createElement("section");panel.id="rk-theme-studio";
  panel.innerHTML='<div><div class="rk-kicker">RK Dice Theme Studio</div><div class="section-title" style="margin:6px 0">Set the mood</div><p class="rk-description">Choose a palette to change the colours and typography together.</p></div><div class="rk-theme-grid" role="group" aria-label="Theme presets"></div><div class="rk-control"><label for="rk-die-size">Dice size</label><div class="rk-range-row"><input id="rk-die-size" type="range" min="80" max="125" step="5" value="100"><span class="rk-size-value" id="rk-die-size-value">100%</span></div></div><div class="rk-control"><label for="rk-die-style">Dice finish</label><select id="rk-die-style"><option value="classic">Classic</option><option value="soft">Soft rounded</option><option value="glass">Luminous glass</option><option value="sketch">Hand drawn</option><option value="botanical">Botanical edge</option></select></div><p class="rk-description">Your choices are saved on this device. The original game controls remain in place.</p>';
- paletteSection.insertAdjacentElement("afterend",panel);
+ footer.insertAdjacentElement("beforebegin",panel);
  const grid=panel.querySelector(".rk-theme-grid");
  Object.entries(themes).forEach(([name,t])=>{
   const b=document.createElement("button");b.type="button";b.className="rk-theme-choice";b.dataset.rkTheme=name;b.setAttribute("aria-pressed","false");
@@ -110,12 +111,11 @@ function buildPanel(){
   b.addEventListener("click",()=>applyTheme(name));grid.appendChild(b);
  });
  const size=panel.querySelector("#rk-die-size"),sizeValue=panel.querySelector("#rk-die-size-value");
- function setSize(v,persist=true){const n=Math.max(80,Math.min(125,Number(v)||100));document.documentElement.style.setProperty("--rk-face-scale",n/100);document.documentElement.style.setProperty("--rk-die-size",n/100);size.value=n;sizeValue.textContent=n+"%";if(persist)try{localStorage.setItem("rk-dice-size",String(n))}catch(e){}}
+ function setSize(v,persist=true){const n=Math.max(80,Math.min(125,Number(v)||100));document.documentElement.style.setProperty("--rk-face-scale",n/100);document.documentElement.style.setProperty("--rk-die-width",n+"%");size.value=n;sizeValue.textContent=n+"%";if(persist)try{localStorage.setItem("rk-dice-size",String(n))}catch(e){}}
  size.addEventListener("input",()=>setSize(size.value));
  const finish=panel.querySelector("#rk-die-style");
  finish.addEventListener("change",()=>{document.body.dataset.rkDieStyle=finish.value;try{localStorage.setItem("rk-dice-finish",finish.value)}catch(e){}});
  try{setSize(localStorage.getItem("rk-dice-size")||100,false);const f=localStorage.getItem("rk-dice-finish");if(f&&["classic","soft","glass","sketch","botanical"].includes(f)){finish.value=f;document.body.dataset.rkDieStyle=f}}catch(e){setSize(100,false)}
- document.querySelectorAll(".swatch").forEach(b=>b.addEventListener("click",()=>{if(themes[b.dataset.palette])applyTheme(b.dataset.palette)}));
  let saved="Moss";try{saved=localStorage.getItem("rk-dice-theme")||localStorage.getItem("rk-dice-palette")||"Moss"}catch(e){}
  applyTheme(themes[saved]?saved:"Moss",false);
  const observer=new MutationObserver(updateRollDescription),dice=document.getElementById("dice"),status=document.getElementById("status");
