@@ -117,7 +117,7 @@ function buildPanel(){
  const footer=document.querySelector(".footer");
  if(!footer||document.getElementById("rk-theme-studio"))return;
  const panel=document.createElement("section");panel.id="rk-theme-studio";
- panel.innerHTML='<div><div class="rk-kicker">RK Dice Theme Studio</div><div class="section-title" style="margin:6px 0">Set the mood</div><p class="rk-description">Choose a palette to change the colours and typography together.</p></div><div class="rk-theme-grid" role="group" aria-label="Theme presets"></div><div class="rk-control"><label for="rk-die-size">Dice size</label><div class="rk-range-row"><input id="rk-die-size" type="range" min="80" max="125" step="5" value="100"><span class="rk-size-value" id="rk-die-size-value">100%</span></div></div><div class="rk-control"><label>Dice finish</label><div class="rk-finish-grid" role="group" aria-label="Dice finish"></div></div><p class="rk-description">Your choices are saved on this device. The original game controls remain in place.</p>';
+ panel.innerHTML='<div><div class="rk-kicker">RK Dice Theme Studio</div><div class="section-title" style="margin:6px 0">Set the mood</div><p class="rk-description">Choose a palette to change the colours and typography together.</p></div><div class="rk-theme-grid" role="group" aria-label="Theme presets"></div><div class="rk-control"><label for="rk-die-size">Dice size</label><div class="rk-range-row"><input id="rk-die-size" type="range" min="75" max="300" step="5" value="100"><span class="rk-size-value" id="rk-die-size-value">100%</span></div></div><div class="rk-control"><label>Dice finish</label><div class="rk-finish-grid" role="group" aria-label="Dice finish"></div></div><p class="rk-description">Your choices are saved on this device. The original game controls remain in place.</p>';
  footer.insertAdjacentElement("beforebegin",panel);
  const grid=panel.querySelector(".rk-theme-grid");
  Object.entries(themes).forEach(([name,t])=>{
@@ -126,7 +126,8 @@ function buildPanel(){
   b.addEventListener("click",()=>applyTheme(name));grid.appendChild(b);
  });
  const size=panel.querySelector("#rk-die-size"),sizeValue=panel.querySelector("#rk-die-size-value");
- function setSize(v,persist=true){const n=Math.max(80,Math.min(125,Number(v)||100));document.documentElement.style.setProperty("--rk-face-scale",n/100);document.documentElement.style.setProperty("--rk-die-width",n+"%");size.value=n;sizeValue.textContent=n+"%";if(persist)try{localStorage.setItem("rk-dice-size",String(n))}catch(e){}}
+ function setSize(v,persist=true){const n=Math.max(80,Math.min(125,Number(v)||100));document.documentElement.style.setProperty("--rk-face-scale",n/100);document.documentElement.style.setProperty("--rk-die-width",Math.min(100,n)+"%");
+ const diceEl=document.getElementById("dice");if(diceEl){diceEl.classList.toggle("large-dice",n>125&&n<=200);diceEl.classList.toggle("vertical-dice",n>200);}size.value=n;sizeValue.textContent=n+"%";if(persist)try{localStorage.setItem("rk-dice-size",String(n))}catch(e){}}
  size.addEventListener("input",()=>setSize(size.value));
  const finishes=[["classic","Classic","assets/dice-finish-classic.svg"],["soft","Soft rounded","assets/dice-finish-soft.svg"],["glass","Luminous glass","assets/dice-finish-glass.svg"],["sketch","Hand drawn","assets/dice-finish-sketch.svg"],["botanical","Botanical edge","assets/dice-finish-botanical.svg"]];
  const finishGrid=panel.querySelector(".rk-finish-grid");
